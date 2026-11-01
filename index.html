@@ -1,25 +1,48 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>AIbotの泉</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <h1>AIbot-Springs(ＡＩの泉)</h1>
     <p>ブラウザで、CCv2キャラカードから(discordへの導入を検討中)</p>
-<form id="card-form">
-    <div class="field">
-        <label for="name">名前</label>
-        <p class="help">キャラクターの名前をここに。</p>
-        <input type="text" id="name">
-    </div>
-    <div class="field">
-        <label for="description">説明</label>
-        <p class="help">まずは外見から生い立ち、立場などを形成しましょう。</p>
-        <textarea id="description" rows="6"></textarea>
-    </div>
-    <button type="submit">カードを作成</button>
-</form>
+    <form id="card-form">
+        <div class="field">
+            <label for="name">名前</label>
+            <p class="help">キャラクターの名前をここに。</p>
+            <input type="text" id="name">
+        </div>
+        <div class="field">
+            <label for="description">説明</label>
+            <p class="help">まずは外見から生い立ち、立場などを形成しましょう。</p>
+            <textarea id="description" rows="6"></textarea>
+        </div>
+        <div class="field">
+            <label for="personality">性格</label>
+            <p class="help">つぎにキャラクターの性格。自分好みな奴から自分にないところを持ち合わせたものまで自由に。</p>
+            <textarea id="personality" rows="4"></textarea>
+        </div>
+        <div class="field">
+            <label for="scenario">シナリオ</label>
+            <p class="help">キャラクターのシナリオや状況、背景をここに。</p>
+            <textarea id="scenario" rows="4"></textarea>
+        </div>
+        <div class="field">
+            <label for="first_mes">最初のメッセージ</label>
+            <p class="help">会話に登場時の恒常句があればここに入れてしまいましょう。</p>
+            <textarea id="first_mes" rows="4"></textarea>
+        </div>
+        <div class="field">
+            <label for="mes_example">会話例</label>
+            <p class="help">キャラクターの会話例をここに。</p>
+            <textarea id="mes_example" rows="8"></textarea>
+        </div>
+        <button type="submit">カードを作成</button>
+    </form>
 </body>
+
 </html>
