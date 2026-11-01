@@ -2,11 +2,24 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>はじめてのウェブサイト</title>
+    <title>AIbotの泉</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>こんにちは、私のウェブサイトへようこそ！</h1>
-    <p>これからGitとGitHubを使って管理していきます。</p>
+    <h1>AIbot-Springs(ＡＩの泉)</h1>
+    <p>ブラウザで、CCv2キャラカードから(discordへの導入を検討中)</p>
+<form id="card-form">
+    <div class="field">
+        <label for="name">名前</label>
+        <p class="help">キャラクターの名前をここに。</p>
+        <input type="text" id="name">
+    </div>
+    <div class="field">
+        <label for="description">説明</label>
+        <p class="help">まずは外見から生い立ち、立場などを形成しましょう。</p>
+        <textarea id="description" rows="6"></textarea>
+    </div>
+    <button type="submit">カードを作成</button>
+</form>
 </body>
 </html>
