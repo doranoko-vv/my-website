@@ -13,35 +13,69 @@
     <form id="card-form">
         <div class="field">
             <label for="name">名前</label>
-            <p class="help">キャラクターの名前をここに。</p>
+            <p class="help">まずはキャラクターのお名前を聞かせて!。</p>
             <input type="text" id="name">
         </div>
         <div class="field">
             <label for="description">説明</label>
-            <p class="help">まずは外見から生い立ち、立場などを形成しましょう。</p>
+            <p class="help">次は...外見から生い立ち、立場ぐらいの軽い説明をしてくだせぇ。</p>
             <textarea id="description" rows="6"></textarea>
         </div>
         <div class="field">
             <label for="personality">性格</label>
-            <p class="help">つぎにキャラクターの性格。自分好みな奴から自分にないところを持ち合わせたものまで自由に。</p>
+            <p class="help">つぎにキャラクターの性格といきましょう。自分好みな奴から自分にないところを持ち合わせたものまで自由に。</p>
             <textarea id="personality" rows="4"></textarea>
         </div>
         <div class="field">
             <label for="scenario">シナリオ</label>
-            <p class="help">キャラクターのシナリオや状況、背景をここに。</p>
+            <p class="help">ではでは、キャラクターのシナリオや状況、背景を教えてください。</p>
             <textarea id="scenario" rows="4"></textarea>
         </div>
         <div class="field">
             <label for="first_mes">最初のメッセージ</label>
-            <p class="help">会話に登場時の恒常句があればここに入れてしまいましょう。</p>
+            <p class="help">うーんと、つぎは、会話の始まりの部分を具体的に書きましょうか。</p>
             <textarea id="first_mes" rows="4"></textarea>
         </div>
         <div class="field">
             <label for="mes_example">会話例</label>
-            <p class="help">キャラクターの会話例をここに。</p>
+            <p class="help">キャラクターの会話例をここに書いてくれると生成の参考になるはずです！</p>
             <textarea id="mes_example" rows="8"></textarea>
         </div>
+        <details>
+            <summary>上級者向けの設定</summary>
+            <p>これらの設定は若干難しいので、慣れてないなら空白でおっけーでっせ。</p>
+            <div class="field">
+                <label for="system_prompt">システムプロンプト</label>
+                <p class="help">AIの行動や反応を制御するための設定です。</p>
+                <textarea id="system_prompt" rows="4"></textarea>
+            </div>
+            <div class="field">
+                <label for="post_history_instructions">会話後に与える指示</label>
+                <p class="help">会話後にAIに渡す指示文をここに。口調がぶれるなど、キャラ崩壊を防ぐときに使いますな。</p>
+                <textarea id="post_history_instructions" rows="4"></textarea>
+            </div>
+        </details>
+        <div class="field">
+            <label for="creator">作成者</label>
+            <p class="help">作者のお名前をお聞かせくださいな！</p>
+            <input type="text" id="creator">    
+        </div>"> 
+        <div class="field">
+            <label for="character_version">バージョン</label>
+            <p class="help">キャラクターのバージョンを入力してください。（例: 1.0.0）</p>
+            <input type="text" id="character_version">
+        </div>
+        <div class="field">
+            <label for="tags">タグ</label>
+            <p class="help">キャラクターのタグ(属性てきなやーつ)をカンマ区切りで！(例:[女性,ウナギ,上戸,.....etc])
+            <input type="text" id="tags">
+        </div>
+        <div class="field">
+            <label for="creator_notes">作成者のメモ</label>
+            <p class="help">いわゆる備考ですな。ここはAIには見えない部分なので、キャラクターの設定や注意点などを自由に書いてくれれば、おけー。</p>
+        </div>
         <button type="submit">カードを作成</button>
+
     </form>
 </body>
 
