@@ -14,32 +14,32 @@
         <div class="field">
             <label for="name">名前</label>
             <p class="help">まずはキャラクターのお名前を聞かせて!。</p>
-            <input type="text" id="name">
+            <input type="text" id="name"　placeholder="七篠 ごんべー">
         </div>
         <div class="field">
             <label for="description">説明</label>
             <p class="help">次は...外見から生い立ち、立場ぐらいの軽い説明をしてくだせぇ。</p>
-            <textarea id="description" rows="6"></textarea>
+            <textarea id="description" rows="6" placeholder="人知れずコサックダンスを踊るサイドテールな太政大臣"></textarea>
         </div>
         <div class="field">
             <label for="personality">性格</label>
             <p class="help">つぎにキャラクターの性格といきましょう。自分好みな奴から自分にないところを持ち合わせたものまで自由に。</p>
-            <textarea id="personality" rows="4"></textarea>
+            <textarea id="personality" rows="4" placeholder="狡猾で、怠惰で、そのくせ浅学菲才で。そんなところが、好き。"></textarea>
         </div>
         <div class="field">
             <label for="scenario">シナリオ</label>
             <p class="help">ではでは、キャラクターのシナリオや状況、背景を教えてください。</p>
-            <textarea id="scenario" rows="4"></textarea>
+            <textarea id="scenario" rows="4" placeholder="例: 腹をすかせた凶暴なヒグマを前にして、どうやら投資の話がしたいようです。"></textarea>
         </div>
         <div class="field">
             <label for="first_mes">最初のメッセージ</label>
             <p class="help">うーんと、つぎは、会話の始まりの部分を具体的に書きましょうか。</p>
-            <textarea id="first_mes" rows="4"></textarea>
+            <textarea id="first_mes" rows="4" placeholder="えーどうも、「『糠に釘』って言葉作ったやつ、発想とち狂いすぎ」、ごんべーです。"></textarea>
         </div>
         <div class="field">
             <label for="mes_example">会話例</label>
             <p class="help">キャラクターの会話例をここに書いてくれると生成の参考になるはずです！</p>
-            <textarea id="mes_example" rows="8"></textarea>
+            <textarea id="mes_example" rows="8" placeholder="例: 「時に。人は警察に届けだ財布の謝礼を投資にぶちこみたくなる時がある。」"></textarea>
         </div>
         <details>
             <summary>上級者向けの設定</summary>
@@ -47,32 +47,33 @@
             <div class="field">
                 <label for="system_prompt">システムプロンプト</label>
                 <p class="help">AIの行動や反応を制御するための設定です。</p>
-                <textarea id="system_prompt" rows="4"></textarea>
+                <textarea id="system_prompt" rows="4" placeholder="例: あなたはクラスに一人はいそうなざまぁ系のサンドバッグみたいな敵役です。"></textarea>
             </div>
             <div class="field">
                 <label for="post_history_instructions">会話後に与える指示</label>
                 <p class="help">会話後にAIに渡す指示文をここに。口調がぶれるなど、キャラ崩壊を防ぐときに使いますな。</p>
-                <textarea id="post_history_instructions" rows="4"></textarea>
+                <textarea id="post_history_instructions" rows="4" placeholder="例: 心苦しいですが、なるべく反論の余地を残して、一線を越えた発言は控えつつ嫌味な対応をしてください。これも主人公様の快楽のためです。"></textarea>
             </div>
         </details>
         <div class="field">
             <label for="creator">作成者</label>
             <p class="help">作者のお名前をお聞かせくださいな！</p>
-            <input type="text" id="creator">    
-        </div>"> 
+            <input type="text" id="creator" placeholder="モノノフスキー三世">    
+        </div>
         <div class="field">
             <label for="character_version">バージョン</label>
-            <p class="help">キャラクターのバージョンを入力してください。（例: 1.0.0）</p>
-            <input type="text" id="character_version">
+            <p class="help">キャラクターのバージョンを入力してください。</p>
+            <input type="text" id="character_version" placeholder="1.0.0">
         </div>
         <div class="field">
             <label for="tags">タグ</label>
-            <p class="help">キャラクターのタグ(属性てきなやーつ)をカンマ区切りで！(例:[女性,ウナギ,上戸,.....etc])
-            <input type="text" id="tags">
+            <p class="help">キャラクターのタグ(属性てきなやーつ)をカンマ区切りで！</p>
+            <input type="text" id="tags" placeholder="女性,ウナギ,上戸">
         </div>
         <div class="field">
             <label for="creator_notes">作成者のメモ</label>
             <p class="help">いわゆる備考ですな。ここはAIには見えない部分なので、キャラクターの設定や注意点などを自由に書いてくれれば、おけー。</p>
+            <textarea id="creator_notes" rows="4" placeholder="上戸設定はもしかしたら次のバージョンで泣き上戸に変更されるかも"></textarea>
         </div>
         <button type="submit">カードを作成</button>
 
