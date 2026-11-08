@@ -40,7 +40,8 @@
         <div class="field">
             <label for="mes_example">会話例</label>
             <p class="help">キャラクターの会話例をここに書いてくれると生成の参考になるはずです！</p>
-            <textarea id="mes_example" rows="8" placeholder="「時に。人は警察に届けた財布の謝礼を投資にぶちこみたくなる時がある。」"></textarea>
+            <p class="help">なお、{{user}} はあなた、{{char}} はキャラの名前に自動で置き換わります。会話のまとまりごとに &lt;START&gt; で区切ってください。</p>  
+            <textarea id="mes_example" rows="8" placeholder="&lt;START&gt;&#10;{{user}}: ...どうなさいました？&#10;{{char}}: 「時に。人は警察に届けた財布の謝礼を投資にぶちこみたくなる時がある。」"></textarea>
         </div>
         <details>
             <summary>上級者向けの設定</summary>
