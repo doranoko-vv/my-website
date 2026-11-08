@@ -81,6 +81,76 @@ function isPng(bytes) {
     return PNG_SIGNATURE.every((value, i) => bytes[i] === value);
 }
 
+// PNGのバイト列を、チャンクの配列に分解する
+// 各チャンクは { type: "IHDR", data: (中身のバイト列) } の形
+function readChunks(bytes) {
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const chunks = [];
+    let pos = 8; // 最初の8バイトはシグネチャなので飛ばす
+
+    while (pos < bytes.length) {
+        // [長さ 4バイト][種類 4バイト][データ][CRC 4バイト]
+        const length = view.getUint32(pos);
+        const type = String.fromCharCode(...bytes.subarray(pos + 4, pos + 8));
+        const data = bytes.subarray(pos + 8, pos + 8 + length);
+        chunks.push({ type, data });
+
+        // 次のチャンクへ（長さ4 + 種類4 + データ + CRC4）
+        pos += 4 + 4 + length + 4;
+    }
+
+    return chunks;
+}
+
+// CRC32の計算用の表（最初に1回だけ作っておく）
+const CRC_TABLE = (() => {
+    const table = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+            c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        }
+        table[n] = c >>> 0;
+    }
+    return table;
+})();
+
+// CRC32を計算する（Pythonの zlib.crc32 と同じ）
+function crc32(bytes) {
+    let crc = 0xffffffff;
+    for (const b of bytes) {
+        crc = CRC_TABLE[(crc ^ b) & 0xff] ^ (crc >>> 8);
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+}
+
+// チャンクを組み立てる：[長さ 4バイト][種類 4バイト][データ][CRC 4バイト]
+function makeChunk(type, data) {
+    const chunk = new Uint8Array(4 + 4 + data.length + 4);
+    const view = new DataView(chunk.buffer);
+
+    view.setUint32(0, data.length);
+    chunk.set(new TextEncoder().encode(type), 4);
+    chunk.set(data, 8);
+
+    // CRCは「種類＋データ」の部分から計算する
+    const crc = crc32(chunk.subarray(4, 8 + data.length));
+    view.setUint32(8 + data.length, crc);
+
+    return chunk;
+}
+
+// 文字列（日本語OK）をBase64にする
+function toBase64(text) {
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    for (const b of bytes) {
+        binary += String.fromCharCode(b);
+    }
+    return btoa(binary);
+}
+
+
 // 画像ファイルを読み込んで、バイト列をとっておく
 async function loadImage(file) {
     const buffer = await file.arrayBuffer();
@@ -99,6 +169,8 @@ async function loadImage(file) {
     preview.hidden = false;
 
     console.log("画像を読み込みました:", file.name, bytes.length, "バイト");
+    console.log(readChunks(bytes).map((c) => `${c.type}: ${c.data.length} バイト`));
+
 }
 
 // 「ファイルを選択」ボタンで選んだとき
