@@ -70,6 +70,59 @@ function downloadJson(card) {
     URL.revokeObjectURL(url);
 }
 
+// 読み込んだ画像のバイト列（まだ読み込んでいなければ null）
+let imageBytes = null;
+
+// PNGファイルの最初の8バイト（シグネチャ）
+const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
+
+// バイト列がPNGかどうかを、シグネチャで確かめる
+function isPng(bytes) {
+    return PNG_SIGNATURE.every((value, i) => bytes[i] === value);
+}
+
+// 画像ファイルを読み込んで、バイト列をとっておく
+async function loadImage(file) {
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+
+    if (!isPng(bytes)) {
+        alert("PNG画像を選んでください。");
+        return;
+    }
+
+    imageBytes = bytes;
+
+    // プレビューを表示する
+    const preview = document.getElementById("preview");
+    preview.src = URL.createObjectURL(file);
+    preview.hidden = false;
+
+    console.log("画像を読み込みました:", file.name, bytes.length, "バイト");
+}
+
+// 「ファイルを選択」ボタンで選んだとき
+document.getElementById("image").addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        loadImage(file);
+    }
+});
+
+// ページにドラッグしているとき（これを止めないと、ドロップできない）
+document.addEventListener("dragover", (event) => {
+    event.preventDefault();
+});
+
+// ページにドロップしたとき
+document.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    if (file) {
+        loadImage(file);
+    }
+});
+
 const form = document.getElementById("card-form");
 
 form.addEventListener("submit", (event) => {
