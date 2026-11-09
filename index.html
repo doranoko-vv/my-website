@@ -13,6 +13,12 @@
     <p>ブラウザで、CCv2キャラカードから(discordへの導入を検討中)</p>
     <form id="card-form">
         <div class="field">
+            <label for="image">カードの絵</label>
+            <p class="help">PNG画像を、このページにドラッグ＆ドロップ！、ボタンから選ぶのでもいいよ！</p>
+            <input type="file" id="image" accept="image/png">
+            <img id="preview" alt="プレビュー" width="200" hidden>
+        </div>
+        <div class="field">
             <label for="name">名前</label>
             <p class="help">まずはキャラクターのお名前を聞かせて!。</p>
             <input type="text" id="name" placeholder="七篠 ごんべー">
@@ -77,7 +83,9 @@
             <p class="help">いわゆる備考ですな。ここはAIには見えない部分なので、キャラクターの設定や注意点などを自由に書いてくれれば、おけー。</p>
             <textarea id="creator_notes" rows="4" placeholder="上戸設定はもしかしたら次のバージョンで泣き上戸に変更されるかも"></textarea>
         </div>
-        <button type="submit">カードを作成</button>
+        <button type="submit">PNGカードを作成</button>
+        <button type="button" id="export-json">JSONだけ書き出す</button>
+
 
     </form>
 </body>

@@ -50,32 +50,201 @@ function buildCard() {
     
 }
 
-// カードをJSONファイルとしてダウンロードさせる
-function downloadJson(card) {
-    const json = JSON.stringify(card, null, 2);
-
-    // ① JSON文字列を、メモリ上のファイル（Blob）にする
-    const blob = new Blob([json], { type: "application/json" });
-
-    // ② そのファイルを指す、一時的なURLを作る
+// Blob（メモリ上のファイル）を、ダウンロードさせる
+function downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
-
-    // ③ ダウンロード用のリンクを作って、クリックしたことにする
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${card.data.name || "character"}.json`;
+    a.download = filename;
     a.click();
-
-    // ④ 使い終わったURLを片付ける
     URL.revokeObjectURL(url);
 }
 
+// カードをJSONファイルとしてダウンロードさせる
+function downloadJson(card) {
+    const json = JSON.stringify(card, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    downloadBlob(blob, `${card.data.name || "character"}.json`);
+}
+
+// カードをPNGファイルとしてダウンロードさせる
+function downloadPng(card) {
+    const blob = embedCard(imageBytes, card);
+    downloadBlob(blob, `${card.data.name || "character"}.png`);
+}
+
+
+// 読み込んだ画像のバイト列（まだ読み込んでいなければ null）
+let imageBytes = null;
+
+// PNGファイルの最初の8バイト（シグネチャ）
+const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
+
+// バイト列がPNGかどうかを、シグネチャで確かめる
+function isPng(bytes) {
+    return PNG_SIGNATURE.every((value, i) => bytes[i] === value);
+}
+
+// PNGのバイト列を、チャンクの配列に分解する
+// 各チャンクは { type: "IHDR", data: (中身のバイト列) } の形
+function readChunks(bytes) {
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const chunks = [];
+    let pos = 8; // 最初の8バイトはシグネチャなので飛ばす
+
+    while (pos < bytes.length) {
+        // [長さ 4バイト][種類 4バイト][データ][CRC 4バイト]
+        const length = view.getUint32(pos);
+        const type = String.fromCharCode(...bytes.subarray(pos + 4, pos + 8));
+        const data = bytes.subarray(pos + 8, pos + 8 + length);
+        chunks.push({ type, data });
+
+        // 次のチャンクへ（長さ4 + 種類4 + データ + CRC4）
+        pos += 4 + 4 + length + 4;
+    }
+
+    return chunks;
+}
+
+// CRC32の計算用の表（最初に1回だけ作っておく）
+const CRC_TABLE = (() => {
+    const table = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+            c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        }
+        table[n] = c >>> 0;
+    }
+    return table;
+})();
+
+// CRC32を計算する（Pythonの zlib.crc32 と同じ）
+function crc32(bytes) {
+    let crc = 0xffffffff;
+    for (const b of bytes) {
+        crc = CRC_TABLE[(crc ^ b) & 0xff] ^ (crc >>> 8);
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+}
+
+// チャンクを組み立てる：[長さ 4バイト][種類 4バイト][データ][CRC 4バイト]
+function makeChunk(type, data) {
+    const chunk = new Uint8Array(4 + 4 + data.length + 4);
+    const view = new DataView(chunk.buffer);
+
+    view.setUint32(0, data.length);
+    chunk.set(new TextEncoder().encode(type), 4);
+    chunk.set(data, 8);
+
+    // CRCは「種類＋データ」の部分から計算する
+    const crc = crc32(chunk.subarray(4, 8 + data.length));
+    view.setUint32(8 + data.length, crc);
+
+    return chunk;
+}
+
+// 文字列（日本語OK）をBase64にする
+function toBase64(text) {
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    for (const b of bytes) {
+        binary += String.fromCharCode(b);
+    }
+    return btoa(binary);
+}
+
+// tEXt チャンクのキーワード（区切りの0より前の部分）を取り出す
+function getTextKeyword(data) {
+    const end = data.indexOf(0);
+    return String.fromCharCode(...data.subarray(0, end));
+}
+
+// 画像にカードのJSONを埋め込んだ、新しいPNGを作る
+function embedCard(pngBytes, card) {
+    // tEXt の中身：「chara」＋ 区切りの0 ＋ JSONをBase64にしたもの
+    const keyword = new TextEncoder().encode("chara");
+    const text = new TextEncoder().encode(toBase64(JSON.stringify(card)));
+    const textData = new Uint8Array(keyword.length + 1 + text.length);
+    textData.set(keyword, 0);
+    textData.set(text, keyword.length + 1); // 間の1バイトは 0 のまま（区切り）
+
+    const parts = [pngBytes.subarray(0, 8)]; // シグネチャ
+    for (const chunk of readChunks(pngBytes)) {
+        // 元から入っているカードのデータは捨てる（古いデータが優先されないように）
+        if (chunk.type === "tEXt" && ["chara", "ccv3"].includes(getTextKeyword(chunk.data))) {
+            continue;
+        }
+        // IEND の直前に、新しい tEXt を差し込む
+        if (chunk.type === "IEND") {
+            parts.push(makeChunk("tEXt", textData));
+        }
+        parts.push(makeChunk(chunk.type, chunk.data));
+    }
+
+    return new Blob(parts, { type: "image/png" });
+}
+
+
+
+// 画像ファイルを読み込んで、バイト列をとっておく
+async function loadImage(file) {
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+
+    if (!isPng(bytes)) {
+        alert("PNG画像を選んでください。");
+        return;
+    }
+
+    imageBytes = bytes;
+
+    // プレビューを表示する
+    const preview = document.getElementById("preview");
+    preview.src = URL.createObjectURL(file);
+    preview.hidden = false;
+
+    console.log("画像を読み込みました:", file.name, bytes.length, "バイト");
+    console.log(readChunks(bytes).map((c) => `${c.type}: ${c.data.length} バイト`));
+
+}
+
+// 「ファイルを選択」ボタンで選んだとき
+document.getElementById("image").addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        loadImage(file);
+    }
+});
+
+// ページにドラッグしているとき（これを止めないと、ドロップできない）
+document.addEventListener("dragover", (event) => {
+    event.preventDefault();
+});
+
+// ページにドロップしたとき
+document.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    if (file) {
+        loadImage(file);
+    }
+});
+
 const form = document.getElementById("card-form");
 
+// 「PNGカードを作成」ボタン
 form.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const card = buildCard();
-    console.log(JSON.stringify(card, null, 2));
-    downloadJson(card);    // ← 追加
+    if (imageBytes === null) {
+        alert("先に、カードの絵（PNG画像）を読み込んでください。");
+        return;
+    }
+    downloadPng(buildCard());
+});
+
+// 「JSONだけ書き出す」ボタン
+document.getElementById("export-json").addEventListener("click", () => {
+    downloadJson(buildCard());
 });
