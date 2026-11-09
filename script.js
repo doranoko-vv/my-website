@@ -50,25 +50,29 @@ function buildCard() {
     
 }
 
+// Blob（メモリ上のファイル）を、ダウンロードさせる
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 // カードをJSONファイルとしてダウンロードさせる
 function downloadJson(card) {
     const json = JSON.stringify(card, null, 2);
-
-    // ① JSON文字列を、メモリ上のファイル（Blob）にする
     const blob = new Blob([json], { type: "application/json" });
-
-    // ② そのファイルを指す、一時的なURLを作る
-    const url = URL.createObjectURL(blob);
-
-    // ③ ダウンロード用のリンクを作って、クリックしたことにする
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${card.data.name || "character"}.json`;
-    a.click();
-
-    // ④ 使い終わったURLを片付ける
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, `${card.data.name || "character"}.json`);
 }
+
+// カードをPNGファイルとしてダウンロードさせる
+function downloadPng(card) {
+    const blob = embedCard(imageBytes, card);
+    downloadBlob(blob, `${card.data.name || "character"}.png`);
+}
+
 
 // 読み込んだ画像のバイト列（まだ読み込んでいなければ null）
 let imageBytes = null;
@@ -150,6 +154,38 @@ function toBase64(text) {
     return btoa(binary);
 }
 
+// tEXt チャンクのキーワード（区切りの0より前の部分）を取り出す
+function getTextKeyword(data) {
+    const end = data.indexOf(0);
+    return String.fromCharCode(...data.subarray(0, end));
+}
+
+// 画像にカードのJSONを埋め込んだ、新しいPNGを作る
+function embedCard(pngBytes, card) {
+    // tEXt の中身：「chara」＋ 区切りの0 ＋ JSONをBase64にしたもの
+    const keyword = new TextEncoder().encode("chara");
+    const text = new TextEncoder().encode(toBase64(JSON.stringify(card)));
+    const textData = new Uint8Array(keyword.length + 1 + text.length);
+    textData.set(keyword, 0);
+    textData.set(text, keyword.length + 1); // 間の1バイトは 0 のまま（区切り）
+
+    const parts = [pngBytes.subarray(0, 8)]; // シグネチャ
+    for (const chunk of readChunks(pngBytes)) {
+        // 元から入っているカードのデータは捨てる（古いデータが優先されないように）
+        if (chunk.type === "tEXt" && ["chara", "ccv3"].includes(getTextKeyword(chunk.data))) {
+            continue;
+        }
+        // IEND の直前に、新しい tEXt を差し込む
+        if (chunk.type === "IEND") {
+            parts.push(makeChunk("tEXt", textData));
+        }
+        parts.push(makeChunk(chunk.type, chunk.data));
+    }
+
+    return new Blob(parts, { type: "image/png" });
+}
+
+
 
 // 画像ファイルを読み込んで、バイト列をとっておく
 async function loadImage(file) {
@@ -197,10 +233,18 @@ document.addEventListener("drop", (event) => {
 
 const form = document.getElementById("card-form");
 
+// 「PNGカードを作成」ボタン
 form.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const card = buildCard();
-    console.log(JSON.stringify(card, null, 2));
-    downloadJson(card);    // ← 追加
+    if (imageBytes === null) {
+        alert("先に、カードの絵（PNG画像）を読み込んでください。");
+        return;
+    }
+    downloadPng(buildCard());
+});
+
+// 「JSONだけ書き出す」ボタン
+document.getElementById("export-json").addEventListener("click", () => {
+    downloadJson(buildCard());
 });
