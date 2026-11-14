@@ -44,11 +44,13 @@ function fillForm(data) {
 
 // CCv2の形に組み立てる
 function buildCard() {
-    const data = readForm();
+    // 読み込んだカードを土台にして、フォームの内容で上書きする
+    // （フォームにない項目も、消さずに残すため）
+    const data = { ...importedData, ...readForm() };
 
-    // まだ入力欄がない項目は、空の値を入れておく（CCv2で必須のため）
-    data.alternate_greetings = [];
-    data.extensions = {};
+    // まだ入力欄がない項目は、なければ空の値を入れておく（CCv2で必須のため）
+    data.alternate_greetings ??= [];
+    data.extensions ??= {};
 
     return {
         spec: "chara_card_v2",
