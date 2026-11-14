@@ -185,6 +185,31 @@ function embedCard(pngBytes, card) {
     return new Blob(parts, { type: "image/png" });
 }
 
+// Base64を、元の文字列（日本語OK）に戻す（toBase64 の逆）
+function fromBase64(base64) {
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+}
+
+// PNGに埋め込まれたカードのデータを取り出す（カードでなければ null）
+function readCardFromPng(pngBytes) {
+    // tEXt チャンクを { キーワード: 中身 } の形に集める
+    const texts = {};
+    for (const chunk of readChunks(pngBytes)) {
+        if (chunk.type === "tEXt") {
+            const keyword = getTextKeyword(chunk.data);
+            texts[keyword] = new TextDecoder().decode(chunk.data.subarray(keyword.length + 1));
+        }
+    }
+
+    // ccv3（新しい規格）を優先して、なければ chara を使う
+    const base64 = texts["ccv3"] ?? texts["chara"];
+    if (base64 === undefined) {
+        return null;
+    }
+    return JSON.parse(fromBase64(base64));
+}
 
 
 // 画像ファイルを読み込んで、バイト列をとっておく
