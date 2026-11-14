@@ -34,6 +34,14 @@ function readForm() {
     return data;
 }
 
+// カードの中身を、フォームに入れる（readForm の逆）
+function fillForm(data) {
+    for (const key of TEXT_FIELDS) {
+        document.getElementById(key).value = data[key] ?? "";
+    }
+    document.getElementById("tags").value = (data.tags ?? []).join(", ");
+}
+
 // CCv2の形に組み立てる
 function buildCard() {
     const data = readForm();
@@ -76,6 +84,10 @@ function downloadPng(card) {
 
 // 読み込んだ画像のバイト列（まだ読み込んでいなければ null）
 let imageBytes = null;
+
+// 読み込んだカードの data（フォームにない項目も含めて、まるごと持っておく）
+let importedData = {};
+
 
 // PNGファイルの最初の8バイト（シグネチャ）
 const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
@@ -224,6 +236,20 @@ async function loadImage(file) {
 
     imageBytes = bytes;
 
+    // カードのデータが入っていたら、フォームに読み込むか聞く
+    let card = null;
+    try {
+        card = readCardFromPng(bytes);
+    } catch (error) {
+        console.warn("カードのデータを読み取れませんでした:", error);
+    }
+
+    if (card !== null && confirm("この画像には、キャラカードのデータが入っています。\nフォームに読み込みますか？（今入力している内容は上書きされます）")) {
+        const data = card.data ?? card; // data がない古い形式（V1）にも対応する
+        importedData = data;
+        fillForm(data);
+    }
+    
     // プレビューを表示する
     const preview = document.getElementById("preview");
     preview.src = URL.createObjectURL(file);
