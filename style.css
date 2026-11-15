@@ -5,7 +5,7 @@
     --color-bg: #f7f7f5;
     --color-panel: #ffffff;
     --color-border: #cccccc;
-    --color-accent: #d5d83b;
+    --color-accent: #1d009c;
 }
 
 /* ===== ページ全体 ===== */
@@ -61,7 +61,7 @@ input[type="text"]:focus,
 textarea:focus {
     outline: none;
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(174, 216, 59, 0.2);
+    box-shadow: 0 0 0 3px rgba(0, 8, 80, 0.466);
 }
 
 /* 画像のプレビュー */
@@ -111,4 +111,24 @@ button[type="submit"] {
 /* マウスが乗ったら、少し薄くする */
 button:hover {
     opacity: 0.85;
+}
+
+/* ===== スマホ向け（画面幅 480px 以下） ===== */
+@media (max-width: 480px) {
+    body {
+        padding: 8px;              /* 画面の端の余白をせまく */
+    }
+
+    form {
+        padding: 16px;             /* 白い板の内側の余白もせまく */
+    }
+
+    .actions button {
+        width: 100%;               /* ボタンを横いっぱいに（指で押しやすく） */
+    }
+
+    #preview {
+        max-width: 100%;           /* 画像が画面からはみ出さないように */
+        height: auto;              /* 横幅に合わせて、縦も縮める（縦横比キープ） */
+    }
 }
