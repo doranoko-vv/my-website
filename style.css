@@ -1,0 +1,39 @@
+/* ページ全体 */
+body {
+    max-width: 720px;      /* 横に広がりすぎないように */
+    margin: 0 auto;        /* 上下0、左右は自動 → 真ん中に寄せる */
+    padding: 16px;         /* 内側の余白 */
+    font-family: system-ui, sans-serif;
+    line-height: 1.6;      /* 行の高さ（文字の1.6倍） */
+    color: #222222;
+    background: #f7f7f5;
+}
+
+/* 入力欄1つ分の箱 */
+.field {
+    margin-bottom: 24px;   /* 下に余白をあけて、箱どうしを離す */
+}
+
+/* 項目名 */
+label {
+    display: block;        /* 1行まるごと使う（下の説明文と同じ行にならないように） */
+    font-weight: bold;
+}
+
+/* 説明文 */
+.help {
+    margin: 4px 0 8px;     /* 上 4px、左右 0、下 8px */
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* 入力欄 */
+input[type="text"],
+textarea {
+    width: 100%;
+    box-sizing: border-box; /* 幅に、余白と枠線もふくめて計算する */
+    padding: 8px;
+    font: inherit;          /* 文字の設定を、親から引きつぐ */
+    border: 1px solid #ccc;
+    border-radius: 6px;     /* 角を丸くする */
+}
