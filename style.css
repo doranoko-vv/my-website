@@ -1,39 +1,114 @@
-/* ページ全体 */
+/* ===== 色の設定（ここを変えれば、ページ全体の色が変わる） ===== */
+:root {
+    --color-text: #222222;
+    --color-sub: #666666;
+    --color-bg: #f7f7f5;
+    --color-panel: #ffffff;
+    --color-border: #cccccc;
+    --color-accent: #d5d83b;
+}
+
+/* ===== ページ全体 ===== */
 body {
-    max-width: 720px;      /* 横に広がりすぎないように */
-    margin: 0 auto;        /* 上下0、左右は自動 → 真ん中に寄せる */
-    padding: 16px;         /* 内側の余白 */
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
     font-family: system-ui, sans-serif;
-    line-height: 1.6;      /* 行の高さ（文字の1.6倍） */
-    color: #222222;
-    background: #f7f7f5;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg);
+}
+
+/* ===== フォームを、白い板の上にのせる ===== */
+form {
+    padding: 24px;
+    background: var(--color-panel);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* 入力欄1つ分の箱 */
 .field {
-    margin-bottom: 24px;   /* 下に余白をあけて、箱どうしを離す */
+    margin-bottom: 24px;
 }
 
 /* 項目名 */
 label {
-    display: block;        /* 1行まるごと使う（下の説明文と同じ行にならないように） */
+    display: block;
     font-weight: bold;
 }
 
 /* 説明文 */
 .help {
-    margin: 4px 0 8px;     /* 上 4px、左右 0、下 8px */
+    margin: 4px 0 8px;
     font-size: 0.9em;
-    color: #666;
+    color: var(--color-sub);
 }
 
-/* 入力欄 */
+/* ===== 入力欄 ===== */
 input[type="text"],
 textarea {
     width: 100%;
-    box-sizing: border-box; /* 幅に、余白と枠線もふくめて計算する */
+    box-sizing: border-box;
     padding: 8px;
-    font: inherit;          /* 文字の設定を、親から引きつぐ */
-    border: 1px solid #ccc;
-    border-radius: 6px;     /* 角を丸くする */
+    font: inherit;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+}
+
+/* 入力中の欄を、青い枠で目立たせる */
+input[type="text"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(174, 216, 59, 0.2);
+}
+
+/* 画像のプレビュー */
+#preview {
+    margin-top: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+}
+
+/* ===== 上級者向けの設定（折りたたみ） ===== */
+details {
+    margin-bottom: 24px;
+    padding: 12px 16px;
+    border: 1px dashed var(--color-border);
+    border-radius: 8px;
+}
+
+summary {
+    font-weight: bold;
+    cursor: pointer;       /* マウスを乗せると、指のカーソルになる */
+}
+
+/* ===== ボタン ===== */
+.actions {
+    display: flex;
+    flex-wrap: wrap;       /* 入りきらなければ、折り返す */
+    gap: 12px;
+}
+
+button {
+    padding: 10px 20px;
+    font: inherit;
+    color: var(--color-accent);
+    background: var(--color-panel);
+    border: 1px solid var(--color-accent);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* メインのボタン（PNGカードを作成）は、塗りつぶして目立たせる */
+button[type="submit"] {
+    color: #ffffff;
+    background: var(--color-accent);
+    font-weight: bold;
+}
+
+/* マウスが乗ったら、少し薄くする */
+button:hover {
+    opacity: 0.85;
 }
