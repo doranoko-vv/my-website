@@ -1,0 +1,159 @@
+/* ===== 色の設定（ここを変えれば、ページ全体の色が変わる） ===== */
+:root {
+    --color-text: #222222;
+    --color-sub: #666666;
+    --color-bg: #f7f7f5;
+    --color-panel: #ffffff;
+    --color-border: #cccccc;
+    --color-accent: #1d009c;
+}
+
+/* ===== ページ全体 ===== */
+body {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
+    font-family: system-ui, sans-serif;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg);
+}
+
+/* ===== フォームを、白い板の上にのせる ===== */
+form {
+    padding: 24px;
+    background: var(--color-panel);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    animation: fade-in 0.4s ease-out;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* 入力欄1つ分の箱 */
+.field {
+    margin-bottom: 24px;
+}
+
+/* 項目名 */
+label {
+    display: block;
+    font-weight: bold;
+}
+
+/* 説明文 */
+.help {
+    margin: 4px 0 8px;
+    font-size: 0.9em;
+    color: var(--color-sub);
+}
+
+/* ===== 入力欄 ===== */
+input[type="text"],
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    font: inherit;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 入力中の欄を、青い枠で目立たせる */
+input[type="text"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(0, 8, 80, 0.466);
+}
+
+/* 画像のプレビュー */
+#preview {
+    margin-top: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+}
+
+/* ===== 上級者向けの設定（折りたたみ） ===== */
+details {
+    margin-bottom: 24px;
+    padding: 12px 16px;
+    border: 1px dashed var(--color-border);
+    border-radius: 8px;
+}
+
+summary {
+    font-weight: bold;
+    cursor: pointer;       /* マウスを乗せると、指のカーソルになる */
+}
+
+/* ===== ボタン ===== */
+.actions {
+    display: flex;
+    flex-wrap: wrap;       /* 入りきらなければ、折り返す */
+    gap: 12px;
+}
+
+button {
+    padding: 10px 20px;
+    font: inherit;
+    color: var(--color-accent);
+    background: var(--color-panel);
+    border: 1px solid var(--color-accent);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+
+}
+
+/* メインのボタン（PNGカードを作成）は、塗りつぶして目立たせる */
+button[type="submit"] {
+    color: #ffffff;
+    background: var(--color-accent);
+    font-weight: bold;
+}
+
+/* マウスが乗ったら、少し薄くして、ふわっと浮かせる */
+button:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+/* 押した瞬間、少し沈む */
+button:active {
+    transform: translateY(0) scale(0.97);
+}
+
+
+/* ===== スマホ向け（画面幅 480px 以下） ===== */
+@media (max-width: 480px) {
+    body {
+        padding: 8px;              /* 画面の端の余白をせまく */
+    }
+
+    form {
+        padding: 16px;             /* 白い板の内側の余白もせまく */
+    }
+
+    .actions button {
+        width: 100%;               /* ボタンを横いっぱいに（指で押しやすく） */
+    }
+
+    #preview {
+        max-width: 100%;           /* 画像が画面からはみ出さないように */
+        height: auto;              /* 横幅に合わせて、縦も縮める（縦横比キープ） */
+    }
+}
+
+/* ===== 動きを減らす設定の人には、アニメーションを止める ===== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

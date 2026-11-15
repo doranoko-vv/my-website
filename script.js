@@ -301,3 +301,4 @@ form.addEventListener("submit", (event) => {
 document.getElementById("export-json").addEventListener("click", () => {
     downloadJson(buildCard());
 });
+
