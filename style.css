@@ -25,7 +25,7 @@ form {
     background: var(--color-panel);
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    animation: cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: fade-in 0.4s ease-out;
 }
 
 @keyframes fade-in {
