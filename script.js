@@ -241,11 +241,20 @@ function readCardFromPng(pngBytes) {
 // 画像ファイルを読み込んで、バイト列をとっておく
 async function loadImage(file) {
     const buffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
+    let bytes = new Uint8Array(buffer);
 
+    // PNGでなければ、PNGに変換する
     if (!isPng(bytes)) {
-        alert("PNG画像を選んでください。");
-        return;
+        if (!file.type.startsWith("image/")) {
+            alert("画像ファイルではないようです。PNG、JPEG、WebPなどの画像を読み込んでください。");
+            return;
+        }
+        try {
+            bytes = await convertToPng(file);
+        }catch (error) {
+            console.warn("画像をPNGに変換できませんでした:", error);
+            return;
+        }
     }
 
     imageBytes = bytes;
