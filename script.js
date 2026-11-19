@@ -99,6 +99,18 @@ function isPng(bytes) {
     return PNG_SIGNATURE.every((value, i) => bytes[i] === value);
 }
 
+// PNG以外の画像（JPEGなど）を、Canvasで描き直してPNGのバイトにする
+// ※ Canvasは tEXt を消すが、JPEGにはカードのデータがないので問題ない
+async function convertToPng(file) {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    canvas.getContext("2d").drawImage(bitmap, 0, 0);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return new Uint8Array(await blob.arrayBuffer());
+}
+
 // PNGのバイト列を、チャンクの配列に分解する
 // 各チャンクは { type: "IHDR", data: (中身のバイト列) } の形
 function readChunks(bytes) {
