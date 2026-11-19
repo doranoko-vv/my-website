@@ -99,6 +99,18 @@ function isPng(bytes) {
     return PNG_SIGNATURE.every((value, i) => bytes[i] === value);
 }
 
+// PNG以外の画像（JPEGなど）を、Canvasで描き直してPNGのバイトにする
+// ※ Canvasは tEXt を消すが、JPEGにはカードのデータがないので問題ない
+async function convertToPng(file) {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    canvas.getContext("2d").drawImage(bitmap, 0, 0);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return new Uint8Array(await blob.arrayBuffer());
+}
+
 // PNGのバイト列を、チャンクの配列に分解する
 // 各チャンクは { type: "IHDR", data: (中身のバイト列) } の形
 function readChunks(bytes) {
@@ -229,11 +241,26 @@ function readCardFromPng(pngBytes) {
 // 画像ファイルを読み込んで、バイト列をとっておく
 async function loadImage(file) {
     const buffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
+    let bytes = new Uint8Array(buffer);
 
+    // PNGでなければ、PNGに変換する
     if (!isPng(bytes)) {
-        alert("PNG画像を選んでください。");
-        return;
+                // HEIC（iPhoneの写真）は、多くのブラウザが読めないので案内する
+        if (/\.(heic|heif)$/.test(file.name.toLowerCase())) {
+            alert("HEIC形式（iPhoneの写真）は、このブラウザでは読み込めません。\nJPEGやPNGに変換してから読み込んでください。\n（iPhoneから直接このサイトで写真を選ぶと、自動でJPEGになることが多いです）");
+            return;
+        }
+        if (!file.type.startsWith("image/")) {
+            alert("画像ファイルではないようです。PNG、JPEG、WebPなどの画像を読み込んでください。");
+            return;
+        }
+        try {
+            bytes = await convertToPng(file);
+        }catch (error) {
+            console.warn("画像をPNGに変換できませんでした:", error);
+            alert("この画像は読み込めませんでした。別の画像を試してみてください。");
+            return;
+        }
     }
 
     imageBytes = bytes;
