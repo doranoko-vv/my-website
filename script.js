@@ -245,6 +245,11 @@ async function loadImage(file) {
 
     // PNGでなければ、PNGに変換する
     if (!isPng(bytes)) {
+                // HEIC（iPhoneの写真）は、多くのブラウザが読めないので案内する
+        if (/\.(heic|heif)$/.test(file.name.toLowerCase())) {
+            alert("HEIC形式（iPhoneの写真）は、このブラウザでは読み込めません。\nJPEGやPNGに変換してから読み込んでください。\n（iPhoneから直接このサイトで写真を選ぶと、自動でJPEGになることが多いです）");
+            return;
+        }
         if (!file.type.startsWith("image/")) {
             alert("画像ファイルではないようです。PNG、JPEG、WebPなどの画像を読み込んでください。");
             return;
