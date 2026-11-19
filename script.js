@@ -253,6 +253,7 @@ async function loadImage(file) {
             bytes = await convertToPng(file);
         }catch (error) {
             console.warn("画像をPNGに変換できませんでした:", error);
+            alert("この画像は読み込めませんでした。別の画像を試してみてください。");
             return;
         }
     }
