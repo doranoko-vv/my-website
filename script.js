@@ -57,7 +57,7 @@ function buildCard() {
         spec_version: "2.0",
         data: data,
     };
-    
+
 }
 
 // Blob（メモリ上のファイル）を、ダウンロードさせる
@@ -245,7 +245,7 @@ async function loadImage(file) {
 
     // PNGでなければ、PNGに変換する
     if (!isPng(bytes)) {
-                // HEIC（iPhoneの写真）は、多くのブラウザが読めないので案内する
+        // HEIC（iPhoneの写真）は、多くのブラウザが読めないので案内する
         if (/\.(heic|heif)$/.test(file.name.toLowerCase())) {
             alert("HEIC形式（iPhoneの写真）は、このブラウザでは読み込めません。\nJPEGやPNGに変換してから読み込んでください。\n（iPhoneから直接このサイトで写真を選ぶと、自動でJPEGになることが多いです）");
             return;
@@ -256,7 +256,7 @@ async function loadImage(file) {
         }
         try {
             bytes = await convertToPng(file);
-        }catch (error) {
+        } catch (error) {
             console.warn("画像をPNGに変換できませんでした:", error);
             alert("この画像は読み込めませんでした。別の画像を試してみてください。");
             return;
@@ -278,7 +278,7 @@ async function loadImage(file) {
         importedData = data;
         fillForm(data);
     }
-    
+
     // プレビューを表示する
     const preview = document.getElementById("preview");
     preview.src = URL.createObjectURL(file);
