@@ -78,8 +78,8 @@ function downloadJson(card) {
 }
 
 // カードをPNGファイルとしてダウンロードさせる
-function downloadPng(card) {
-    const blob = embedCard(imageBytes, card);
+function downloadPng(card, pngBytes) {
+    const blob = embedCard(pngBytes, card);
     downloadBlob(blob, `${card.data.name || "character"}.png`);
 }
 
@@ -131,7 +131,7 @@ async function makeSampleImage(){
     //シルエットは背景と同じ色相で、濃い色にする
     ctx.fillStyle = `hsl(${hue}, 40%, 40%)`;
 
-     // 横の中心（キャンバスの幅の半分）
+    // 横の中心（キャンバスの幅の半分）
     const cx = canvas.width / 2;
 
     // 頭：中心 (cx, 220)、半径 70 → 下端は y = 290
@@ -352,14 +352,20 @@ document.addEventListener("drop", (event) => {
 const form = document.getElementById("card-form");
 
 // 「PNGカードを作成」ボタン
-form.addEventListener("submit", (event) => {
-    event.preventDefault();
+form.addEventListener("submit", async (event) => {
+    event.preventDefault(); // ※ await より前に書く（後だと、ページが再読み込みされてしまう）
 
-    if (imageBytes === null) {
-        alert("先に、カードの絵（PNG画像）を読み込んでください。");
-        return;
+    let pngBytes = imageBytes;
+
+    // 画像がなければ、サンプル画像で作るか聞く
+    if (pngBytes === null) {
+        if (!confirm("画像が読み込まれていないようです。\nサンプル画像（シルエット）でカードを作成できますが、よろしいですか？")) {
+            return;
+        }
+        pngBytes = await makeSampleImage();
     }
-    downloadPng(buildCard());
+
+    downloadPng(buildCard(), pngBytes);
 });
 
 // 「JSONだけ書き出す」ボタン
