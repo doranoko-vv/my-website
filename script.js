@@ -129,16 +129,21 @@ async function makeSampleImage(){
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     //シルエットは背景と同じ色相で、濃い色にする
-    ctx .fillStyle = `hsl(${hue}, 40%, 40%)`;
+    ctx.fillStyle = `hsl(${hue}, 40%, 40%)`;
 
-    //頭の部分
+     // 横の中心（キャンバスの幅の半分）
+    const cx = canvas.width / 2;
+
+    // 頭：中心 (cx, 220)、半径 70 → 下端は y = 290
     ctx.beginPath();
-    ctx.arc(256, 256, 70, 0, Math.PI * 2);
+    ctx.arc(cx, 220, 70, 0, Math.PI * 2);
     ctx.fill();
 
-    //体の部分(肩の部分を丸める)
+    // 体：首のすき間を10pxあけて y = 300 から、画像の下端まで
+    // roundRect は「左上の角」で指定するので、中心から幅の半分だけ左にずらす
+    const bodyW = 220;
     ctx.beginPath();
-    ctx.roundRect(150, 320, 220, 200, [110,110,0,0]);
+    ctx.roundRect(cx - bodyW / 2, 300, bodyW, canvas.height - 300, [bodyW / 2, bodyW / 2, 0, 0]);
     ctx.fill();
 
     return canvasToPngBytes(canvas);
