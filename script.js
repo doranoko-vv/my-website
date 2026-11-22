@@ -99,6 +99,12 @@ function isPng(bytes) {
     return PNG_SIGNATURE.every((value, i) => bytes[i] === value);
 }
 
+// Canvasに描いた絵を、PNGのバイトにする
+async function canvasToPngBytes(canvas) {
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return new Uint8Array(await blob.arrayBuffer());
+}
+
 // PNG以外の画像（JPEGなど）を、Canvasで描き直してPNGのバイトにする
 // ※ Canvasは tEXt を消すが、JPEGにはカードのデータがないので問題ない
 async function convertToPng(file) {
@@ -107,8 +113,35 @@ async function convertToPng(file) {
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
     canvas.getContext("2d").drawImage(bitmap, 0, 0);
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-    return new Uint8Array(await blob.arrayBuffer());
+    return canvasToPngBytes(canvas);
+}
+
+//提出する画像がない人向けに、サンプル画像（シルエット）を描いて、PNGのバイト列にする
+async function makeSampleImage(){
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext("2d");
+
+    //背景は色相をランダムとして、パステル色に明度と彩度を調整したものにする
+    const hue = Math.floor(Math.random() * 360);
+    ctx.fillStyle = `hsl(${hue}, 50%, 80%)`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //シルエットは背景と同じ色相で、濃い色にする
+    ctx .fillStyle = `hsl(${hue}, 40%, 40%)`;
+
+    //頭の部分
+    ctx.beginPath();
+    ctx.arc(256, 256, 70, 0, Math.PI * 2);
+    ctx.fill();
+
+    //体の部分(肩の部分を丸める)
+    ctx.beginPath();
+    ctx.roundRect(150, 320, 220, 200, [110,110,0,0]);
+    ctx.fill();
+
+    return canvasToPngBytes(canvas);
 }
 
 // PNGのバイト列を、チャンクの配列に分解する
