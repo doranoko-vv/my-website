@@ -57,7 +57,7 @@ function buildCard() {
         spec_version: "2.0",
         data: data,
     };
-    
+
 }
 
 // Blob（メモリ上のファイル）を、ダウンロードさせる
@@ -78,8 +78,8 @@ function downloadJson(card) {
 }
 
 // カードをPNGファイルとしてダウンロードさせる
-function downloadPng(card) {
-    const blob = embedCard(imageBytes, card);
+function downloadPng(card, pngBytes) {
+    const blob = embedCard(pngBytes, card);
     downloadBlob(blob, `${card.data.name || "character"}.png`);
 }
 
@@ -99,6 +99,12 @@ function isPng(bytes) {
     return PNG_SIGNATURE.every((value, i) => bytes[i] === value);
 }
 
+// Canvasに描いた絵を、PNGのバイトにする
+async function canvasToPngBytes(canvas) {
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return new Uint8Array(await blob.arrayBuffer());
+}
+
 // PNG以外の画像（JPEGなど）を、Canvasで描き直してPNGのバイトにする
 // ※ Canvasは tEXt を消すが、JPEGにはカードのデータがないので問題ない
 async function convertToPng(file) {
@@ -107,8 +113,40 @@ async function convertToPng(file) {
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
     canvas.getContext("2d").drawImage(bitmap, 0, 0);
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-    return new Uint8Array(await blob.arrayBuffer());
+    return canvasToPngBytes(canvas);
+}
+
+//提出する画像がない人向けに、サンプル画像（シルエット）を描いて、PNGのバイト列にする
+async function makeSampleImage(){
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext("2d");
+
+    //背景は色相をランダムとして、パステル色に明度と彩度を調整したものにする
+    const hue = Math.floor(Math.random() * 360);
+    ctx.fillStyle = `hsl(${hue}, 50%, 80%)`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //シルエットは背景と同じ色相で、濃い色にする
+    ctx.fillStyle = `hsl(${hue}, 40%, 40%)`;
+
+    // 横の中心（キャンバスの幅の半分）
+    const cx = canvas.width / 2;
+
+    // 頭：中心 (cx, 220)、半径 70 → 下端は y = 290
+    ctx.beginPath();
+    ctx.arc(cx, 220, 70, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 体：首のすき間を10pxあけて y = 300 から、画像の下端まで
+    // roundRect は「左上の角」で指定するので、中心から幅の半分だけ左にずらす
+    const bodyW = 220;
+    ctx.beginPath();
+    ctx.roundRect(cx - bodyW / 2, 300, bodyW, canvas.height - 300, [bodyW / 2, bodyW / 2, 0, 0]);
+    ctx.fill();
+
+    return canvasToPngBytes(canvas);
 }
 
 // PNGのバイト列を、チャンクの配列に分解する
@@ -237,6 +275,20 @@ function readCardFromPng(pngBytes) {
     return JSON.parse(fromBase64(base64));
 }
 
+// 読み込んだ画像を外して、「画像なし」の状態に戻す
+// ※ フォームの中身（importedData）はそのまま残す
+function clearImage() {
+    imageBytes = null;
+
+    const preview = document.getElementById("preview");
+    URL.revokeObjectURL(preview.src); // プレビュー用に作ったURLを片付ける
+    preview.removeAttribute("src");
+    preview.hidden = true;
+
+    // 選択状態を空にする（これがないと、同じ画像を選び直したときに change が起きない）
+    document.getElementById("image").value = "";
+    document.getElementById("clear-image").hidden = true;
+}
 
 // 画像ファイルを読み込んで、バイト列をとっておく
 async function loadImage(file) {
@@ -245,7 +297,7 @@ async function loadImage(file) {
 
     // PNGでなければ、PNGに変換する
     if (!isPng(bytes)) {
-                // HEIC（iPhoneの写真）は、多くのブラウザが読めないので案内する
+        // HEIC（iPhoneの写真）は、多くのブラウザが読めないので案内する
         if (/\.(heic|heif)$/.test(file.name.toLowerCase())) {
             alert("HEIC形式（iPhoneの写真）は、このブラウザでは読み込めません。\nJPEGやPNGに変換してから読み込んでください。\n（iPhoneから直接このサイトで写真を選ぶと、自動でJPEGになることが多いです）");
             return;
@@ -256,7 +308,7 @@ async function loadImage(file) {
         }
         try {
             bytes = await convertToPng(file);
-        }catch (error) {
+        } catch (error) {
             console.warn("画像をPNGに変換できませんでした:", error);
             alert("この画像は読み込めませんでした。別の画像を試してみてください。");
             return;
@@ -278,11 +330,12 @@ async function loadImage(file) {
         importedData = data;
         fillForm(data);
     }
-    
+
     // プレビューを表示する
     const preview = document.getElementById("preview");
     preview.src = URL.createObjectURL(file);
     preview.hidden = false;
+        document.getElementById("clear-image").hidden = false;
 
     console.log("画像を読み込みました:", file.name, bytes.length, "バイト");
     console.log(readChunks(bytes).map((c) => `${c.type}: ${c.data.length} バイト`));
@@ -314,18 +367,27 @@ document.addEventListener("drop", (event) => {
 const form = document.getElementById("card-form");
 
 // 「PNGカードを作成」ボタン
-form.addEventListener("submit", (event) => {
-    event.preventDefault();
+form.addEventListener("submit", async (event) => {
+    event.preventDefault(); // ※ await より前に書く（後だと、ページが再読み込みされてしまう）
 
-    if (imageBytes === null) {
-        alert("先に、カードの絵（PNG画像）を読み込んでください。");
-        return;
+    let pngBytes = imageBytes;
+
+    // 画像がなければ、サンプル画像で作るか聞く
+    if (pngBytes === null) {
+        if (!confirm("画像が読み込まれていないようです。\nサンプル画像（シルエット）でカードを作成できますが、よろしいですか？")) {
+            return;
+        }
+        pngBytes = await makeSampleImage();
     }
-    downloadPng(buildCard());
+
+    downloadPng(buildCard(), pngBytes);
 });
 
 // 「JSONだけ書き出す」ボタン
 document.getElementById("export-json").addEventListener("click", () => {
     downloadJson(buildCard());
 });
+
+// 「画像を外す」ボタン
+document.getElementById("clear-image").addEventListener("click", clearImage);
 
