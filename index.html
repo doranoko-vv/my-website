@@ -17,6 +17,7 @@
             <label for="image">カードの絵</label>
             <p class="help">PNG画像を、このページにドラッグ＆ドロップ！、ボタンから選ぶのでもいいよ！</p>
             <input type="file" id="image" accept="image/png, image/jpeg, image/webp">
+            <button type="button" id="clear-image" hidden>画像を外す</button>
             <img id="preview" alt="プレビュー" width="200" hidden>
         </div>
         <div class="field">
@@ -47,8 +48,9 @@
         <div class="field">
             <label for="mes_example">会話例</label>
             <p class="help">キャラクターの会話例をここに書いてくれると生成の参考になるはずです！</p>
-            <p class="help">なお、{{user}} はあなた、{{char}} はキャラの名前に自動で置き換わります。会話のまとまりごとに &lt;START&gt; で区切ってください。</p>  
-            <textarea id="mes_example" rows="8" placeholder="&lt;START&gt;&#10;{{user}}: ...どうなさいました？&#10;{{char}}: 「時に。人は警察に届けた財布の謝礼を投資にぶちこみたくなる時がある。」"></textarea>
+            <p class="help">なお、{{user}} はあなた、{{char}} はキャラの名前に自動で置き換わります。会話のまとまりごとに &lt;START&gt; で区切ってください。</p>
+            <textarea id="mes_example" rows="8"
+                placeholder="&lt;START&gt;&#10;{{user}}: ...どうなさいました？&#10;{{char}}: 「時に。人は警察に届けた財布の謝礼を投資にぶちこみたくなる時がある。」"></textarea>
         </div>
         <details>
             <summary>上級者向けの設定</summary>
@@ -61,13 +63,14 @@
             <div class="field">
                 <label for="post_history_instructions">会話後に与える指示</label>
                 <p class="help">会話後にAIに渡す指示文をここに。口調がぶれるなど、キャラ崩壊を防ぐときに使いますな。</p>
-                <textarea id="post_history_instructions" rows="4" placeholder="例: 心苦しいですが、なるべく反論の余地を残して、一線を越えた発言は控えつつ嫌味な対応をしてください。これも主人公様の快楽のためです。"></textarea>
+                <textarea id="post_history_instructions" rows="4"
+                    placeholder="例: 心苦しいですが、なるべく反論の余地を残して、一線を越えた発言は控えつつ嫌味な対応をしてください。これも主人公様の快楽のためです。"></textarea>
             </div>
         </details>
         <div class="field">
             <label for="creator">作成者</label>
             <p class="help">作者のお名前をお聞かせくださいな！</p>
-            <input type="text" id="creator" placeholder="モノノフスキー三世">    
+            <input type="text" id="creator" placeholder="モノノフスキー三世">
         </div>
         <div class="field">
             <label for="character_version">バージョン</label>
@@ -85,8 +88,8 @@
             <textarea id="creator_notes" rows="4" placeholder="上戸設定はもしかしたら次のバージョンで泣き上戸に変更されるかも"></textarea>
         </div>
         <div class="actions">
-        　　<button type="submit">PNGカードを作成</button>
-        　　<button type="button" id="export-json">JSONだけ書き出す</button>
+            　　<button type="submit">PNGカードを作成</button>
+            　　<button type="button" id="export-json">JSONだけ書き出す</button>
         </div>
 
 

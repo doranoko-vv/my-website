@@ -275,6 +275,20 @@ function readCardFromPng(pngBytes) {
     return JSON.parse(fromBase64(base64));
 }
 
+// 読み込んだ画像を外して、「画像なし」の状態に戻す
+// ※ フォームの中身（importedData）はそのまま残す
+function clearImage() {
+    imageBytes = null;
+
+    const preview = document.getElementById("preview");
+    URL.revokeObjectURL(preview.src); // プレビュー用に作ったURLを片付ける
+    preview.removeAttribute("src");
+    preview.hidden = true;
+
+    // 選択状態を空にする（これがないと、同じ画像を選び直したときに change が起きない）
+    document.getElementById("image").value = "";
+    document.getElementById("clear-image").hidden = true;
+}
 
 // 画像ファイルを読み込んで、バイト列をとっておく
 async function loadImage(file) {
@@ -321,6 +335,7 @@ async function loadImage(file) {
     const preview = document.getElementById("preview");
     preview.src = URL.createObjectURL(file);
     preview.hidden = false;
+        document.getElementById("clear-image").hidden = false;
 
     console.log("画像を読み込みました:", file.name, bytes.length, "バイト");
     console.log(readChunks(bytes).map((c) => `${c.type}: ${c.data.length} バイト`));
@@ -372,4 +387,7 @@ form.addEventListener("submit", async (event) => {
 document.getElementById("export-json").addEventListener("click", () => {
     downloadJson(buildCard());
 });
+
+// 「画像を外す」ボタン
+document.getElementById("clear-image").addEventListener("click", clearImage);
 
