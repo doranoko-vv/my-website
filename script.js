@@ -30,7 +30,11 @@ function readForm() {
         .split(",")
         .map((tag) => tag.trim())
         .filter((tag) => tag !== "");
-
+    // 別の挨拶：欄ごとの文字を集めて配列にする（空の欄は入れない）
+    const greetingBoxes = document.querySelectorAll("#greetings-list textarea");
+    data.alternate_greetings = Array.from(greetingBoxes)
+        .map((box) => box.value)
+        .filter((text) => text.trim() !== "");
     return data;
 }
 
@@ -40,6 +44,11 @@ function fillForm(data) {
         document.getElementById(key).value = data[key] ?? "";
     }
     document.getElementById("tags").value = (data.tags ?? []).join(", ");
+        // 別の挨拶：いったん全部消してから、データの数だけ欄を作る
+    document.getElementById("greetings-list").replaceChildren();
+    for (const text of data.alternate_greetings ?? []) {
+        addGreeting(text);
+    }
 }
 
 // 「別の挨拶」の入力欄を1つ増やす（text：最初から入れておく文章）
@@ -50,7 +59,7 @@ function addGreeting(text = "") {
     const textarea = document.createElement("textarea");
     textarea.rows = 4;
     textarea.value = text;
-    textarea.placeholder = "ニンニク\nヤサイ\n油っこいものいっぱい\n全部混ぜるとむっ↑ちゃ美味しい二郎系ができるー\nはずだった\nだけどユートニ〇ム博士は間違って余計なものも入れちゃった！\nそれは\nChemical seasoning （※余計ではありません。）";
+    textarea.placeholder = "ニンニク\nヤサイ\n油っこいものいっぱい\n全部混ぜるとむっ↓ちゃ↑おいしい↓二郎系ができるー\nはずだった\nだけどユートニ〇ム博士は間違って余計なものも入れちゃった！\nそれは\nChemical seasoning （※余計ではありません。）";
     textarea.setAttribute("aria-label", "別の挨拶"); // 画面読み上げ用の名前（label の代わり）
 
     const removeButton = document.createElement("button");
