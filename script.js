@@ -44,7 +44,7 @@ function fillForm(data) {
         document.getElementById(key).value = data[key] ?? "";
     }
     document.getElementById("tags").value = (data.tags ?? []).join(", ");
-        // 別の挨拶：いったん全部消してから、データの数だけ欄を作る
+    // 別の挨拶：いったん全部消してから、データの数だけ欄を作る
     document.getElementById("greetings-list").replaceChildren();
     for (const text of data.alternate_greetings ?? []) {
         addGreeting(text);
@@ -146,7 +146,7 @@ async function convertToPng(file) {
 }
 
 //提出する画像がない人向けに、サンプル画像（シルエット）を描いて、PNGのバイト列にする
-async function makeSampleImage(){
+async function makeSampleImage() {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 512;
@@ -364,7 +364,7 @@ async function loadImage(file) {
     const preview = document.getElementById("preview");
     preview.src = URL.createObjectURL(file);
     preview.hidden = false;
-        document.getElementById("clear-image").hidden = false;
+    document.getElementById("clear-image").hidden = false;
 
     console.log("画像を読み込みました:", file.name, bytes.length, "バイト");
     console.log(readChunks(bytes).map((c) => `${c.type}: ${c.data.length} バイト`));
