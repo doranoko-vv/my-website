@@ -42,6 +42,26 @@ function fillForm(data) {
     document.getElementById("tags").value = (data.tags ?? []).join(", ");
 }
 
+// 「別の挨拶」の入力欄を1つ増やす（text：最初から入れておく文章）
+function addGreeting(text = "") {
+    const item = document.createElement("div");
+    item.className = "greeting";
+
+    const textarea = document.createElement("textarea");
+    textarea.rows = 4;
+    textarea.value = text;
+    textarea.placeholder = "ニンニク\nヤサイ\n油っこいものいっぱい\n全部混ぜるとむっ↑ちゃ美味しい二郎系ができるー\nはずだった\nだけどユートニ〇ム博士は間違って余計なものも入れちゃった！\nそれは\nChemical seasoning （※余計ではありません。）";
+    textarea.setAttribute("aria-label", "別の挨拶"); // 画面読み上げ用の名前（label の代わり）
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button"; // form の中なので、submit にならないように
+    removeButton.textContent = "この挨拶を消す";
+    removeButton.addEventListener("click", () => item.remove());
+
+    item.append(textarea, removeButton);
+    document.getElementById("greetings-list").append(item);
+}
+
 // CCv2の形に組み立てる
 function buildCard() {
     // 読み込んだカードを土台にして、フォームの内容で上書きする
@@ -390,4 +410,7 @@ document.getElementById("export-json").addEventListener("click", () => {
 
 // 「画像を外す」ボタン
 document.getElementById("clear-image").addEventListener("click", clearImage);
+
+// 「＋ 挨拶を追加」ボタン
+document.getElementById("add-greeting").addEventListener("click", () => addGreeting());
 
