@@ -99,6 +99,18 @@ summary {
     gap: 12px;
 }
 
+/* 別の挨拶：1つ分の箱 */
+.greeting {
+    margin-bottom: 12px;
+}
+
+/* 「この挨拶を消す」ボタンは、控えめに */
+.greeting button {
+    margin-top: 4px;
+    padding: 4px 12px;
+    font-size: 0.85em;
+}
+
 button {
     padding: 10px 20px;
     font: inherit;

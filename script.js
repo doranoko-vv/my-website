@@ -30,7 +30,11 @@ function readForm() {
         .split(",")
         .map((tag) => tag.trim())
         .filter((tag) => tag !== "");
-
+    // 別の挨拶：欄ごとの文字を集めて配列にする（空の欄は入れない）
+    const greetingBoxes = document.querySelectorAll("#greetings-list textarea");
+    data.alternate_greetings = Array.from(greetingBoxes)
+        .map((box) => box.value)
+        .filter((text) => text.trim() !== "");
     return data;
 }
 
@@ -40,6 +44,31 @@ function fillForm(data) {
         document.getElementById(key).value = data[key] ?? "";
     }
     document.getElementById("tags").value = (data.tags ?? []).join(", ");
+    // 別の挨拶：いったん全部消してから、データの数だけ欄を作る
+    document.getElementById("greetings-list").replaceChildren();
+    for (const text of data.alternate_greetings ?? []) {
+        addGreeting(text);
+    }
+}
+
+// 「別の挨拶」の入力欄を1つ増やす（text：最初から入れておく文章）
+function addGreeting(text = "") {
+    const item = document.createElement("div");
+    item.className = "greeting";
+
+    const textarea = document.createElement("textarea");
+    textarea.rows = 4;
+    textarea.value = text;
+    textarea.placeholder = "ニンニク\nヤサイ\n油っこいものいっぱい\n全部混ぜるとむっ↓ちゃ↑おいしい↓二郎系ができるー\nはずだった\nだけどユートニ〇ム博士は間違って余計なものも入れちゃった！\nそれは\nChemical seasoning （※余計ではありません。）";
+    textarea.setAttribute("aria-label", "別の挨拶"); // 画面読み上げ用の名前（label の代わり）
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button"; // form の中なので、submit にならないように
+    removeButton.textContent = "この挨拶を消す";
+    removeButton.addEventListener("click", () => item.remove());
+
+    item.append(textarea, removeButton);
+    document.getElementById("greetings-list").append(item);
 }
 
 // CCv2の形に組み立てる
@@ -117,7 +146,7 @@ async function convertToPng(file) {
 }
 
 //提出する画像がない人向けに、サンプル画像（シルエット）を描いて、PNGのバイト列にする
-async function makeSampleImage(){
+async function makeSampleImage() {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 512;
@@ -335,7 +364,7 @@ async function loadImage(file) {
     const preview = document.getElementById("preview");
     preview.src = URL.createObjectURL(file);
     preview.hidden = false;
-        document.getElementById("clear-image").hidden = false;
+    document.getElementById("clear-image").hidden = false;
 
     console.log("画像を読み込みました:", file.name, bytes.length, "バイト");
     console.log(readChunks(bytes).map((c) => `${c.type}: ${c.data.length} バイト`));
@@ -390,4 +419,7 @@ document.getElementById("export-json").addEventListener("click", () => {
 
 // 「画像を外す」ボタン
 document.getElementById("clear-image").addEventListener("click", clearImage);
+
+// 「＋ 挨拶を追加」ボタン
+document.getElementById("add-greeting").addEventListener("click", () => addGreeting());
 
