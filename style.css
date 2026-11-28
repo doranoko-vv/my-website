@@ -111,6 +111,29 @@ summary {
     font-size: 0.85em;
 }
 
+/* 世界観の辞書：1項目分の箱 */
+.entry {
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+}
+
+/* 箱の中の欄どうしの間をあける */
+.entry > * {
+    margin-bottom: 8px;
+}
+
+/* 「この項目を使う」は、太字にしない */
+.entry label {
+    font-weight: normal;
+}
+
+.entry button {
+    padding: 4px 12px;
+    font-size: 0.85em;
+}
+
 button {
     padding: 10px 20px;
     font: inherit;

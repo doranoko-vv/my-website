@@ -71,6 +71,45 @@ function addGreeting(text = "") {
     document.getElementById("greetings-list").append(item);
 }
 
+// 「世界観の辞書」の項目を1つ増やす（entry：最初から入れておく項目のデータ）
+function addEntry(entry = {}) {
+    const item = document.createElement("div");
+    item.className = "entry";
+
+    // キーワード（タグと同じく、カンマ区切り）
+    const keysInput = document.createElement("input");
+    keysInput.type = "text";
+    keysInput.className = "entry-keys";
+    keysInput.value = (entry.keys ?? []).join(", ");
+    keysInput.placeholder = "一つの概念を指すキーワード（カンマ区切りで別名を列挙可能）例: †古鳥の構え†,古鳥の構え,「構え」,だっせぇ構え";
+    keysInput.setAttribute("aria-label", "キーワード");
+
+    // 内容
+    const contentInput = document.createElement("textarea");
+    contentInput.className = "entry-content";
+    contentInput.rows = 4;
+    contentInput.value = entry.content ?? "";
+    contentInput.placeholder = "{{char}}が中二病発症時に独自に生み出した構え。\nだが、実際は右足方向に極端に重心を置いただけのいわゆる「霞の構え」であり、本来の守りながら間合いを詰めるという大きな利点が不安定な重心によって台無しなのである。\nこの話を振ると{{char}}はめちゃくちゃ怒る。";
+    contentInput.setAttribute("aria-label", "内容");
+
+    // 有効／無効（新しい項目は、最初からチェックを入れておく）
+    const enabledInput = document.createElement("input");
+    enabledInput.type = "checkbox";
+    enabledInput.className = "entry-enabled";
+    enabledInput.checked = entry.enabled ?? true;
+    const enabledLabel = document.createElement("label");
+    enabledLabel.append(enabledInput, " この項目を使う");
+
+    // 消すボタン
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.textContent = "この項目を消す";
+    removeButton.addEventListener("click", () => item.remove());
+
+    item.append(keysInput, contentInput, enabledLabel, removeButton);
+    document.getElementById("entries-list").append(item);
+}
+
 // CCv2の形に組み立てる
 function buildCard() {
     // 読み込んだカードを土台にして、フォームの内容で上書きする
@@ -423,3 +462,5 @@ document.getElementById("clear-image").addEventListener("click", clearImage);
 // 「＋ 挨拶を追加」ボタン
 document.getElementById("add-greeting").addEventListener("click", () => addGreeting());
 
+// 「＋ 項目を追加」ボタン
+document.getElementById("add-entry").addEventListener("click", () => addEntry());
